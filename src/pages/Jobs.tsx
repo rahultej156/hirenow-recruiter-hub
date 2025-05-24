@@ -12,7 +12,7 @@ const Jobs = () => {
   const [isPostJobOpen, setIsPostJobOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<any>(null);
 
-  const jobs = [
+  const defaultJobs = [
     {
       id: 1,
       title: "Senior Full Stack Developer",
@@ -93,6 +93,26 @@ const Jobs = () => {
     }
   ];
 
+  const [jobs, setJobs] = useState(defaultJobs);
+
+  const handleJobPosted = (jobDescription: string) => {
+    const newJob = {
+      id: jobs.length + 1,
+      title: "New Position",
+      company: "Your Company",
+      location: "Remote",
+      type: "Full-time",
+      salary: "Competitive",
+      applicants: 0,
+      posted: "Just now",
+      description: jobDescription,
+      requirements: ["Requirements from JD"],
+      status: "Active"
+    };
+    
+    setJobs([newJob, ...jobs]);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
@@ -110,6 +130,9 @@ const Jobs = () => {
               </Link>
               <Link to="/candidates">
                 <Button variant="ghost">Candidates</Button>
+              </Link>
+              <Link to="/ai-match">
+                <Button variant="ghost">AI Match</Button>
               </Link>
               <Button variant="outline" onClick={() => setIsPostJobOpen(true)}>Post Job</Button>
             </div>
@@ -221,7 +244,11 @@ const Jobs = () => {
       </div>
 
       {/* Post Job Dialog */}
-      <PostJobDialog isOpen={isPostJobOpen} onClose={() => setIsPostJobOpen(false)} />
+      <PostJobDialog 
+        isOpen={isPostJobOpen} 
+        onClose={() => setIsPostJobOpen(false)}
+        onJobPosted={handleJobPosted}
+      />
     </div>
   );
 };
