@@ -17,18 +17,20 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from "@/components/ui/dialog";
-import { ArrowDown, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowDown, FileText, Users } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
 const Candidates = () => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const location = useLocation();
+  const fromJob = location.state?.fromJob;
 
   const candidates = [
     {
       id: 1,
       name: "Alice Johnson",
-      appliedJob: "Senior Full Stack Developer",
+      appliedJob: fromJob ? fromJob.title : "Senior Full Stack Developer",
       status: "Interview Scheduled",
       aiScore: 92,
       email: "alice.johnson@email.com",
@@ -37,12 +39,13 @@ const Candidates = () => {
       currentLocation: "San Francisco, CA",
       currentSalary: "$135,000",
       expectedSalary: "$155,000",
-      avatar: "AJ"
+      avatar: "AJ",
+      resumeUrl: "#"
     },
     {
       id: 2,
       name: "Michael Chen",
-      appliedJob: "UX/UI Designer",
+      appliedJob: fromJob ? fromJob.title : "UX/UI Designer",
       status: "Under Review",
       aiScore: 88,
       email: "michael.chen@email.com",
@@ -51,12 +54,13 @@ const Candidates = () => {
       currentLocation: "New York, NY",
       currentSalary: "$95,000",
       expectedSalary: "$115,000",
-      avatar: "MC"
+      avatar: "MC",
+      resumeUrl: "#"
     },
     {
       id: 3,
       name: "Sarah Williams",
-      appliedJob: "DevOps Engineer",
+      appliedJob: fromJob ? fromJob.title : "DevOps Engineer",
       status: "Technical Assessment",
       aiScore: 95,
       email: "sarah.williams@email.com",
@@ -65,12 +69,13 @@ const Candidates = () => {
       currentLocation: "Austin, TX",
       currentSalary: "$120,000",
       expectedSalary: "$140,000",
-      avatar: "SW"
+      avatar: "SW",
+      resumeUrl: "#"
     },
     {
       id: 4,
       name: "David Rodriguez",
-      appliedJob: "Product Manager",
+      appliedJob: fromJob ? fromJob.title : "Product Manager",
       status: "Final Interview",
       aiScore: 90,
       email: "david.rodriguez@email.com",
@@ -79,12 +84,13 @@ const Candidates = () => {
       currentLocation: "Seattle, WA",
       currentSalary: "$145,000",
       expectedSalary: "$165,000",
-      avatar: "DR"
+      avatar: "DR",
+      resumeUrl: "#"
     },
     {
       id: 5,
       name: "Emma Thompson",
-      appliedJob: "Data Scientist",
+      appliedJob: fromJob ? fromJob.title : "Data Scientist",
       status: "Offer Extended",
       aiScore: 87,
       email: "emma.thompson@email.com",
@@ -93,12 +99,13 @@ const Candidates = () => {
       currentLocation: "Boston, MA",
       currentSalary: "$125,000",
       expectedSalary: "$145,000",
-      avatar: "ET"
+      avatar: "ET",
+      resumeUrl: "#"
     },
     {
       id: 6,
       name: "James Wilson",
-      appliedJob: "Frontend Developer",
+      appliedJob: fromJob ? fromJob.title : "Frontend Developer",
       status: "Under Review",
       aiScore: 83,
       email: "james.wilson@email.com",
@@ -107,12 +114,13 @@ const Candidates = () => {
       currentLocation: "Remote",
       currentSalary: "$85,000",
       expectedSalary: "$95,000",
-      avatar: "JW"
+      avatar: "JW",
+      resumeUrl: "#"
     },
     {
       id: 7,
       name: "Lisa Brown",
-      appliedJob: "Product Manager",
+      appliedJob: fromJob ? fromJob.title : "Product Manager",
       status: "Interview Scheduled",
       aiScore: 91,
       email: "lisa.brown@email.com",
@@ -121,12 +129,13 @@ const Candidates = () => {
       currentLocation: "Chicago, IL",
       currentSalary: "$130,000",
       expectedSalary: "$150,000",
-      avatar: "LB"
+      avatar: "LB",
+      resumeUrl: "#"
     },
     {
       id: 8,
       name: "Robert Garcia",
-      appliedJob: "DevOps Engineer",
+      appliedJob: fromJob ? fromJob.title : "DevOps Engineer",
       status: "Technical Assessment",
       aiScore: 86,
       email: "robert.garcia@email.com",
@@ -135,7 +144,8 @@ const Candidates = () => {
       currentLocation: "Denver, CO",
       currentSalary: "$110,000",
       expectedSalary: "$130,000",
-      avatar: "RG"
+      avatar: "RG",
+      resumeUrl: "#"
     }
   ];
 
@@ -170,6 +180,14 @@ const Candidates = () => {
     console.log("Viewing details for:", candidate);
   };
 
+  const handleViewResume = (candidate) => {
+    toast({
+      title: "Resume Viewer",
+      description: `Opening resume for ${candidate.name}`,
+    });
+    console.log("Viewing resume for:", candidate);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
@@ -198,7 +216,13 @@ const Candidates = () => {
         {/* Header */}
         <div className="px-4 py-6 sm:px-0">
           <h1 className="text-3xl font-bold text-gray-900">Candidate Management</h1>
-          <p className="mt-2 text-gray-600">Review and manage candidate applications</p>
+          {fromJob ? (
+            <p className="mt-2 text-gray-600">
+              Viewing candidates for <span className="font-semibold">{fromJob.title}</span> at <span className="font-semibold">{fromJob.company}</span>
+            </p>
+          ) : (
+            <p className="mt-2 text-gray-600">Review and manage candidate applications</p>
+          )}
         </div>
 
         {/* Candidates Table */}
@@ -206,7 +230,7 @@ const Candidates = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Users className="mr-2 h-5 w-5" />
-              All Candidates ({candidates.length})
+              {fromJob ? `Candidates for ${fromJob.title}` : `All Candidates (${candidates.length})`}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -215,7 +239,7 @@ const Candidates = () => {
                 <thead>
                   <tr className="border-b">
                     <th className="text-left py-3 px-4 font-semibold">Candidate</th>
-                    <th className="text-left py-3 px-4 font-semibold">Applied Job</th>
+                    {!fromJob && <th className="text-left py-3 px-4 font-semibold">Applied Job</th>}
                     <th className="text-left py-3 px-4 font-semibold">Status</th>
                     <th className="text-left py-3 px-4 font-semibold">AI Score</th>
                     <th className="text-left py-3 px-4 font-semibold">Actions</th>
@@ -235,9 +259,11 @@ const Candidates = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 px-4">
-                        <p className="text-sm font-medium text-gray-900">{candidate.appliedJob}</p>
-                      </td>
+                      {!fromJob && (
+                        <td className="py-4 px-4">
+                          <p className="text-sm font-medium text-gray-900">{candidate.appliedJob}</p>
+                        </td>
+                      )}
                       <td className="py-4 px-4">
                         <Badge className={getStatusColor(candidate.status)}>
                           {candidate.status}
@@ -276,6 +302,17 @@ const Candidates = () => {
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
+
+                          {/* Resume Button */}
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleViewResume(candidate)}
+                            className="flex items-center gap-1"
+                          >
+                            <FileText className="h-4 w-4" />
+                            Resume
+                          </Button>
 
                           {/* Call Button with Dialog */}
                           <Dialog>

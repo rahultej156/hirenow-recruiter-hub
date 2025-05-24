@@ -1,11 +1,17 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import PostJobDialog from "@/components/PostJobDialog";
+import AICandidateMatch from "@/components/AICandidateMatch";
 
 const Jobs = () => {
+  const [isPostJobOpen, setIsPostJobOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+
   const jobs = [
     {
       id: 1,
@@ -105,7 +111,7 @@ const Jobs = () => {
               <Link to="/candidates">
                 <Button variant="ghost">Candidates</Button>
               </Link>
-              <Button variant="outline">Post Job</Button>
+              <Button variant="outline" onClick={() => setIsPostJobOpen(true)}>Post Job</Button>
             </div>
           </div>
         </div>
@@ -118,77 +124,104 @@ const Jobs = () => {
           <p className="mt-2 text-gray-600">Find the perfect candidates for these open positions</p>
         </div>
 
-        {/* Jobs Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {jobs.map((job) => (
-            <Card key={job.id} className="hover:shadow-lg transition-shadow duration-200">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl">{job.title}</CardTitle>
-                    <CardDescription className="text-base mt-1">{job.company}</CardDescription>
-                  </div>
-                  <Badge variant={job.status === "Hot" ? "destructive" : "secondary"}>
-                    {job.status}
-                  </Badge>
-                </div>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  <Badge variant="outline">{job.location}</Badge>
-                  <Badge variant="outline">{job.type}</Badge>
-                  <Badge variant="outline">{job.salary}</Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-4">{job.description}</p>
-                
-                <div className="mb-4">
-                  <h4 className="font-semibold text-sm mb-2">Requirements:</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {job.requirements.map((req, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {req}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+        {/* Show AI Candidate Match if a job is selected */}
+        {selectedJob && (
+          <div className="mb-8">
+            <AICandidateMatch jobTitle={selectedJob.title} />
+            <div className="mt-4 flex justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => setSelectedJob(null)}
+              >
+                Back to Jobs
+              </Button>
+            </div>
+          </div>
+        )}
 
-                <div className="flex justify-between items-center pt-4 border-t">
-                  <div className="flex items-center text-sm text-gray-500">
-                    <Users className="h-4 w-4 mr-1" />
-                    {job.applicants} applicants • {job.posted}
+        {/* Jobs Grid - Only show if no job is selected */}
+        {!selectedJob && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {jobs.map((job) => (
+              <Card key={job.id} className="hover:shadow-lg transition-shadow duration-200">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-xl">{job.title}</CardTitle>
+                      <CardDescription className="text-base mt-1">{job.company}</CardDescription>
+                    </div>
+                    <Badge variant={job.status === "Hot" ? "destructive" : "secondary"}>
+                      {job.status}
+                    </Badge>
                   </div>
-                  <Link to="/candidates">
-                    <Button size="sm">
-                      View Candidates
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Badge variant="outline">{job.location}</Badge>
+                    <Badge variant="outline">{job.type}</Badge>
+                    <Badge variant="outline">{job.salary}</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-4">{job.description}</p>
+                  
+                  <div className="mb-4">
+                    <h4 className="font-semibold text-sm mb-2">Requirements:</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {job.requirements.map((req, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {req}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-4 border-t">
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Users className="h-4 w-4 mr-1" />
+                      {job.applicants} applicants • {job.posted}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => setSelectedJob(job)}>
+                        AI Matches
+                      </Button>
+                      <Link to="/candidates" state={{ fromJob: job }}>
+                        <Button size="sm">
+                          View Candidates
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Call to Action - Only show if no job is selected */}
+        {!selectedJob && (
+          <div className="mt-12 text-center">
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  Ready to find your next hire?
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Browse through our candidate database to find the perfect match for your open positions.
+                </p>
+                <Link to="/candidates">
+                  <Button size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                    Browse Candidates
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
-          ))}
-        </div>
-
-        {/* Call to Action */}
-        <div className="mt-12 text-center">
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-            <CardContent className="p-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Ready to find your next hire?
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Browse through our candidate database to find the perfect match for your open positions.
-              </p>
-              <Link to="/candidates">
-                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                  Browse Candidates
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
+          </div>
+        )}
       </div>
+
+      {/* Post Job Dialog */}
+      <PostJobDialog isOpen={isPostJobOpen} onClose={() => setIsPostJobOpen(false)} />
     </div>
   );
 };
