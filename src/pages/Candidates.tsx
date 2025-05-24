@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +20,7 @@ import {
 import { ArrowDown, FileText, Users, Filter } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import ChatbotWidget from "@/components/ChatbotWidget";
 
 const Candidates = () => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -440,6 +440,9 @@ const Candidates = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Chatbot Widget */}
+      <ChatbotWidget />
     </div>
   );
 };
