@@ -12,16 +12,22 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface PostJobDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onJobPosted?: (jobDescription: string) => void;
+  onJobPosted?: (jobData: any) => void;
 }
 
 const PostJobDialog = ({ isOpen, onClose, onJobPosted }: PostJobDialogProps) => {
+  const [jobTitle, setJobTitle] = useState("");
+  const [company, setCompany] = useState("");
+  const [location, setLocation] = useState("");
+  const [employmentType, setEmploymentType] = useState("");
+  const [salaryRange, setSalaryRange] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -29,20 +35,29 @@ const PostJobDialog = ({ isOpen, onClose, onJobPosted }: PostJobDialogProps) => 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!jobDescription.trim() && !file) {
+    if (!jobTitle.trim() || !company.trim() || (!jobDescription.trim() && !file)) {
       toast({
         title: "Error",
-        description: "Please provide a job description or upload a file",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
       return;
     }
 
-    console.log("Job Description:", jobDescription);
+    const jobData = {
+      title: jobTitle,
+      company: company,
+      location: location,
+      type: employmentType,
+      salary: salaryRange,
+      description: jobDescription,
+    };
+
+    console.log("Job Data:", jobData);
     
     // Call the callback to add job to the list
     if (onJobPosted) {
-      onJobPosted(jobDescription);
+      onJobPosted(jobData);
     }
     
     toast({
@@ -51,6 +66,11 @@ const PostJobDialog = ({ isOpen, onClose, onJobPosted }: PostJobDialogProps) => 
     });
     
     // Reset form
+    setJobTitle("");
+    setCompany("");
+    setLocation("");
+    setEmploymentType("");
+    setSalaryRange("");
     setJobDescription("");
     setFile(null);
     onClose();
@@ -86,7 +106,7 @@ const PostJobDialog = ({ isOpen, onClose, onJobPosted }: PostJobDialogProps) => 
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Post a New Job</DialogTitle>
           <DialogDescription>
@@ -94,7 +114,67 @@ const PostJobDialog = ({ isOpen, onClose, onJobPosted }: PostJobDialogProps) => 
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Job Details Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Job Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="job-title">Job Title *</Label>
+                <Input
+                  id="job-title"
+                  placeholder="e.g. Senior Frontend Developer"
+                  value={jobTitle}
+                  onChange={(e) => setJobTitle(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="company">Company *</Label>
+                <Input
+                  id="company"
+                  placeholder="e.g. TechCorp Inc."
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  placeholder="e.g. San Francisco, CA"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="employment-type">Employment Type</Label>
+                <Select value={employmentType} onValueChange={setEmploymentType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select employment type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full-time">Full-time</SelectItem>
+                    <SelectItem value="part-time">Part-time</SelectItem>
+                    <SelectItem value="contract">Contract</SelectItem>
+                    <SelectItem value="freelance">Freelance</SelectItem>
+                    <SelectItem value="internship">Internship</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="salary-range">Salary Range</Label>
+                <Input
+                  id="salary-range"
+                  placeholder="e.g. $80,000 - $120,000"
+                  value={salaryRange}
+                  onChange={(e) => setSalaryRange(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
           <Tabs defaultValue="write" className="w-full">
             <TabsList className="grid grid-cols-2">
               <TabsTrigger value="write">Write JD</TabsTrigger>
@@ -103,7 +183,7 @@ const PostJobDialog = ({ isOpen, onClose, onJobPosted }: PostJobDialogProps) => 
             
             <TabsContent value="write" className="space-y-4">
               <div>
-                <Label htmlFor="job-description">Job Description</Label>
+                <Label htmlFor="job-description">Job Description *</Label>
                 <Textarea
                   id="job-description"
                   placeholder="Enter job description..."

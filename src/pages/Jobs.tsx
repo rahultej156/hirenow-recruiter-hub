@@ -95,17 +95,17 @@ const Jobs = () => {
 
   const [jobs, setJobs] = useState(defaultJobs);
 
-  const handleJobPosted = (jobDescription: string) => {
+  const handleJobPosted = (jobData: any) => {
     const newJob = {
       id: jobs.length + 1,
-      title: "New Position",
-      company: "Your Company",
-      location: "Remote",
-      type: "Full-time",
-      salary: "Competitive",
+      title: jobData.title,
+      company: jobData.company,
+      location: jobData.location || "Remote",
+      type: jobData.type || "Full-time",
+      salary: jobData.salary || "Competitive",
       applicants: 0,
       posted: "Just now",
-      description: jobDescription,
+      description: jobData.description,
       requirements: ["Requirements from JD"],
       status: "Active"
     };

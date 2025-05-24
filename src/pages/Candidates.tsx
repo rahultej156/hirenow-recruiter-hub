@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -17,14 +18,24 @@ import {
   DialogTitle, 
   DialogTrigger 
 } from "@/components/ui/dialog";
-import { ArrowDown, FileText, Users } from "lucide-react";
+import { ArrowDown, FileText, Users, Filter } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
 const Candidates = () => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [jobRoleFilter, setJobRoleFilter] = useState("all");
   const location = useLocation();
   const fromJob = location.state?.fromJob;
+
+  const jobRoles = [
+    "Senior Full Stack Developer",
+    "UX/UI Designer", 
+    "DevOps Engineer",
+    "Product Manager",
+    "Data Scientist",
+    "Frontend Developer"
+  ];
 
   const candidates = [
     {
@@ -149,6 +160,10 @@ const Candidates = () => {
     }
   ];
 
+  const filteredCandidates = jobRoleFilter === "all" 
+    ? candidates 
+    : candidates.filter(candidate => candidate.appliedJob === jobRoleFilter);
+
   const getStatusColor = (status) => {
     switch (status) {
       case "Under Review": return "bg-yellow-100 text-yellow-800";
@@ -206,6 +221,9 @@ const Candidates = () => {
               <Link to="/jobs">
                 <Button variant="ghost">Jobs</Button>
               </Link>
+              <Link to="/ai-match">
+                <Button variant="ghost">AI Match</Button>
+              </Link>
               <Button variant="outline">Export</Button>
             </div>
           </div>
@@ -225,12 +243,37 @@ const Candidates = () => {
           )}
         </div>
 
+        {/* Job Role Filter */}
+        {!fromJob && (
+          <div className="px-4 mb-6">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700">Filter by Job Role:</span>
+              </div>
+              <Select value={jobRoleFilter} onValueChange={setJobRoleFilter}>
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Select job role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Job Roles</SelectItem>
+                  {jobRoles.map((role) => (
+                    <SelectItem key={role} value={role}>
+                      {role}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
         {/* Candidates Table */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <Users className="mr-2 h-5 w-5" />
-              {fromJob ? `Candidates for ${fromJob.title}` : `All Candidates (${candidates.length})`}
+              {fromJob ? `Candidates for ${fromJob.title}` : `Candidates (${filteredCandidates.length})`}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -246,7 +289,7 @@ const Candidates = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {candidates.map((candidate) => (
+                  {filteredCandidates.map((candidate) => (
                     <tr key={candidate.id} className="border-b hover:bg-gray-50">
                       <td className="py-4 px-4">
                         <div className="flex items-center space-x-3">
@@ -321,7 +364,7 @@ const Candidates = () => {
                                 size="sm" 
                                 onClick={() => handleViewDetails(candidate)}
                               >
-                                Call Details
+                                View Details
                               </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-md">
